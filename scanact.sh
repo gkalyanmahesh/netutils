@@ -1,4 +1,3 @@
-
 curl https://download.sysinternals.com/files/PSTools.zip -o /tmp/spst.zip
 
 sleep -s 30
