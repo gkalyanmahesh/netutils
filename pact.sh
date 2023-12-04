@@ -23,8 +23,7 @@ disp "============================== $(date)\nAzure kvm ip : $ekvmip \nInternal 
 
 # 1-ipaddress , 2-port , 3-pfile
 
-trigger() { 
-sshpass -f $3 ssh -o StrictHostKeychecking=no cyglass@$1 "python3 -m http.server $2 --directory /home/cyglass" &
+trigger() { sshpass -f $3 ssh -o StrictHostKeychecking=no cyglass@$1 "python3 -m http.server $2 --directory /home/cyglass" &
 if (($?>0));
 then 	disp "Error connecting $i"
 else
