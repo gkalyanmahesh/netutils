@@ -1,11 +1,9 @@
 #
 # sshpass package to be installed on prior
 # Add US as prohibited countries to site 
-disp()
-{ echo $1 ; echo $1 >> /home/cyglass/plog
+disp() { echo $1 ; echo $1 >> /home/cyglass/plog
 }
-pout()
-{ echo "$1 \t - \t $2" >> /home/cyglass/pout
+pout() { echo "$1 \t - \t $2" >> /home/cyglass/pout
 }
 echo "" > /home/cyglass/pout
 
