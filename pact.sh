@@ -155,7 +155,7 @@ disp "============================="
 
 disp "Policy 6: Active Directory to External"
 
-trigger $ekvmip 8080 $epfile
+trigger $ekvmip 88 $epfile
 
 disp "============================="
 
