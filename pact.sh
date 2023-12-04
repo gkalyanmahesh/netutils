@@ -153,7 +153,7 @@ disp "============================="
 
 disp "Policy 6: Active Directory to External"
 
-trigger $ekvmip 88 $epfile
+trigger $ekvmip 88 epfile
 
 disp "============================="
 
@@ -170,7 +170,7 @@ disp "============================="
 
 disp "Policy 7: AA21-356A - Detecting unusual volume of DNS, LDAP or RMI activity due to potential Log4Shell Attacks"
 
-trigger $ekvmip 1099 $epfile
+trigger $ekvmip 1099 epfile
 
 disp "============================="
 
