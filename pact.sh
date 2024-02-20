@@ -1,22 +1,39 @@
+
+
 #
 # sshpass package to be installed on prior
 # Add US as prohibited countries to site 
+# Add appropriate tags for devices prior initiating.
+# Change IP address details as required.
+
 disp() { echo $1 ; echo $1 >> /home/cyglass/plog
 }
 pout() { echo "$1 \t - \t $2" >> /home/cyglass/pout
 }
 echo "" > /home/cyglass/pout
 
-# Azure Kali VM Public IP : 20.223.181.26
-ekvmip="20.223.181.26"
+# Aws Kali VM Public IP :  54.175.225.240
+ekvmip="50.20.30.44"
 
 #Internal kali vm ip(self ip ) # Critical Device # Development # Active Directory
-ikvmip="10.100.3.49"
+ikvmip=$(ifconfig | grep "255.255.255.0" | awk ' { print $2 } ' )
+#ikvmip="10.100.3.49"
 
 # Internal critical device running linux # Critical # Production
-ilvmip="10.100.3.35" 
+ ilvmip="10.100.3.144" 
+#IFS=. read o1 o2 o3 o4 <<< "$ikvmip"
+#for i in {11..99} ; do ip="$o1.$o2.$o3.$i" ; ping $ip -c 1 ; if (($?>0)) ; then echo "" ; else ilvmip="$ip" ; break ; fi ; done
+
+iwvmip="192.168.50.177"
+
+# baclklisted ip
+
+blkip="72.21.81.200"
+
 
 disp "============================== $(date)\nAzure kvm ip : $ekvmip \nInternal kvm ip : $ikvmip \nInternal lvm ip : $ilvmip \n"
+
+
 
 
 # 1-ipaddress , 2-port , 3-pfile
@@ -39,7 +56,7 @@ sleep 5
 
 #= = = = = = = = = = = = = = =  = = = = = = = = = = = = = = = = = =
 
-
+ 
 #------------------------------------------------------------------------------------
 # 1
  # Policy : Block Exfiltration through Common Ports
@@ -386,7 +403,9 @@ disp "============================="
 
 disp "Policy 19:  # Internal WUDO Traffic"
 
-trigger $ilvmip 3544 ipfile
+# trigger $ilvmip 3544 ipfile
+
+curl -kv "http://$iwvmip:3544/pst.zip" -o "/tmp/pst_$iwvmip_3544.zip"
 
 disp "============================="
 
@@ -403,7 +422,9 @@ disp "============================="
 
 disp "Policy 20:  # Unsecured Internal IRC Traffic"
 
-trigger $ilvmip 6667 ipfile
+# trigger $ilvmip 6667 ipfile
+
+curl -kv "http://$iwvmip:6668/pst.zip" -o "/tmp/pst_$iwvmip_6668.zip"
 
 disp "============================="
 
@@ -420,7 +441,7 @@ disp "============================="
 
 disp "Policy 21:  # Unsecured Outbound Telnet Traffic"
 
-trigger $ilvmip 6667 ipfile
+ trigger $ilvmip 23 ipfile
 
 disp "============================="
 
@@ -492,7 +513,7 @@ disp "============================="
 
 disp "Policy 25:  # SSH Attempts from Internal to Internal"
 
-for i in {11..30}; do ip="10.100.11.$i"; sshpass -p "notpassword" ssh -o StrictHostKeychecking=no cyglass@$ip ; done &
+for i in {11..199}; do ip="10.100.11.$i"; sshpass -p "notpassword" ssh -o StrictHostKeychecking=no cyglass@$ip ; done &
 
 disp "============================="
 
@@ -514,6 +535,96 @@ trigger $ekvmip 445 epfile
 disp "============================="
 
  #------------------------------------------------
+
+# 27
+
+# Policy : activity to blacklisted ip
+# Src : Internal Device
+# Dst : Blacklisted ip
+# baclk listed ip 72.21.81.200
+disp "Policy 27: # Activity to Blacklisted ip"
+
+for i in (1..5)
+do
+curl -kv  $blkip
+sleep 2
+done
  
- 
+ # ------------------------------------------------------
+
+# 28
+# Policy : Unsecuered Outboud snmp Traffic
+# Src: internal
+# Dst : External
+# desc:
+# Ports 161 , 162
+# Conv: TCP, UDP_Twoway
+
+trigger $ekvmip 161 epfile
+sleep 3
+trigger $ekvmip 162 epfile
+sleep 3
+
+
+#-------------------------------------------------------------
+
+
+# 29
+# Policy : Unsecuered Outboud FTP/TFTP Traffic
+# Src: internal
+# Dst : External
+# desc:
+# Ports 21 , 69
+# Conv: TCP, UDP_Twoway
+
+trigger $ekvmip 21 epfile
+sleep 3
+trigger $ekvmip 69 epfile
+sleep 3
+
+#----------------------------------------------------------
+
+
+# 30
+# Policy : Unsecuered Outboud snmp Traffic
+# Src: internal
+# Dst : internal
+# desc:
+# Ports 161 , 162
+# Conv: TCP, UDP_Twoway
+
+trigger $ilvmip 161 epfile
+sleep 3
+trigger $ilvmip 162 epfile
+sleep 3
+
+#----------------------------------------------------------
+
+# 31
+# Policy:  SSH Attempts from External to Internal
+# Src : External org
+# Dst : Internal Devices
+# Anom: SSH failed authentication
+
+
+for i in (1..10)
+do 
+sshpass -f epfile ssh -o StrictHostKeychecking=no cyglass@$ekvmip "sshpass -p notpassword ssh -o StrictHostKeychecking=no  cygl@$ikvmip"
+sleep 5
+done
+
+
+
+#---------------------------------------------------------
+# 32
+# Policy : Internal LLMNR traffic
+# Src: internal
+# Dst : Internal
+# desc:
+# Ports 5355
+# Conv: UDP_Oneway ,  UDP_Twoway
+
+
+
+#----------------------------------------------------------
 #==========================================================================
